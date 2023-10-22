@@ -19,4 +19,6 @@ add_executable(OOP_game main.cpp
         lr3/events/spike_event.h
         lr3/events/spike_event.cpp
         lr3/events/portal_event.h
-        lr3/events/portal_event.cpp)
+        lr3/events/portal_event.cpp
+        lr3/field_builder.h
+        lr3/field_builder.cpp)

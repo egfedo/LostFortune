@@ -36,7 +36,10 @@ void PlayerHandler::setCoords(size_t x, size_t y) {
     size_t nx, ny;
     nx = std::min(x, field.getWidth() - 1);
     ny = std::min(y, field.getHeight() - 1);
-    updateCoords(nx, ny);
+    if (field.getTile(nx, ny).getPassability()) {
+        this->x = nx;
+        this->y = ny;
+    }
 }
 
 void PlayerHandler::move(PlayerHandler::Direction dir) {
@@ -132,5 +135,8 @@ void PlayerHandler::updateCoords(size_t nx, size_t ny) {
     if (field.getTile(nx, ny).getPassability()) {
         x = nx;
         y = ny;
+        std::shared_ptr<EventInterface> ptr = field.getTile(nx, ny).getEvent();
+        if (ptr != nullptr)
+            ptr->eventHandler(this);
     }
 }

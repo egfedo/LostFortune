@@ -38,8 +38,6 @@ public:
     size_t getWidth();
     size_t getHeight();
 
-    // bebra
-
     Field(const Field& field);
     Field& operator = (const Field& field);
 

@@ -2,6 +2,7 @@
 // Created by Егор Федоров on 01.10.2023.
 //
 
+#include <iostream>
 #include "tile.h"
 
 bool Tile::getPassability() {

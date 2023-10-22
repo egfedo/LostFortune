@@ -20,7 +20,7 @@ public:
 
     Tile();
     Tile(bool passable, size_t textureID);
-
+    ~Tile() = default;
     bool getPassability();
     void setPassability(bool state);
 

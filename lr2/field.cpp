@@ -4,6 +4,8 @@
 
 #include "field.h"
 
+#include <utility>
+
 Field::Field(size_t width, size_t height) : width(width), height(height) {
     if (width < MIN_SIZE)
         width = MIN_SIZE;
