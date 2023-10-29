@@ -3,6 +3,7 @@
 //
 
 #include <iostream>
+#include <utility>
 #include "tile.h"
 
 bool Tile::getPassability() {
@@ -30,5 +31,5 @@ std::shared_ptr<EventInterface> Tile::getEvent() {
 }
 
 void Tile::setEvent(std::shared_ptr<EventInterface> event) {
-    this->event = event;
+    this->event = std::move(event);
 }

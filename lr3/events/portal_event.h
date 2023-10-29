@@ -14,8 +14,8 @@ private:
 
 public:
     PortalEvent(std::pair<size_t, size_t> newCoord, size_t textureID);
-    size_t getTextureID() const override;
-    void eventHandler(PlayerHandler * instance) override;
+    size_t getTextureID() const final;
+    void eventHandler(PlayerHandler * instance) final;
 };
 
 

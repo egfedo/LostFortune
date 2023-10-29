@@ -17,7 +17,7 @@ public:
     enum class Level {
         first, second
     };
-    static std::unique_ptr<Field> buildField(Level level);
+    static int buildField(Level level, Field &templt);
 };
 
 

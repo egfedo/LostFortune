@@ -18,7 +18,7 @@
 //
 //}
 
-std::unique_ptr<Field> FieldBuilder::buildField(FieldBuilder::Level level) {
+int FieldBuilder::buildField(FieldBuilder::Level level, Field &templt) {
     std::string filename;
     std::stringstream nameFormat;
     nameFormat << "./level" << static_cast<size_t>(level) << ".txt";
@@ -33,6 +33,10 @@ std::unique_ptr<Field> FieldBuilder::buildField(FieldBuilder::Level level) {
             std::getline(in, line);
             std::stringstream stream(line);
             stream >> input;
+            if (input == 0) {
+                in.close();
+                return 2;
+            }
             params.push_back(input);
         }
         for(size_t i = 0; i < 2; i++) {
@@ -53,12 +57,16 @@ std::unique_ptr<Field> FieldBuilder::buildField(FieldBuilder::Level level) {
         HealEvent heal(10, 4);
 
         for (size_t i = 0; i < field.getWidth(); i++) {
-            if (not std::getline(in, line))
-                return nullptr;
+            if (not std::getline(in, line)) {
+                in.close();
+                return 3;
+            }
 
             for (size_t j = 0; j < field.getHeight(); j++) {
-                if (j >= line.length())
-                    return nullptr;
+                if (j >= line.length()) {
+                    in.close();
+                    return 4;
+                }
                 switch (line[j]) {
                     case '#':
                         field.setTile(i, j, wall);
@@ -88,8 +96,15 @@ std::unique_ptr<Field> FieldBuilder::buildField(FieldBuilder::Level level) {
         portal = PortalEvent(portals[0], 5);
         eventSample.setEvent(std::make_shared<PortalEvent>(portal));
         field.setTile(portals[portals.size()-1].first, portals[portals.size()-1].second, eventSample);
-        return std::make_unique<Field>(field);
+        bool entrancePassable = field.getTile(field.getEntrance().first, field.getEntrance().second).getPassability();
+        bool exitPassable = field.getTile(field.getExit().first, field.getExit().second).getPassability();
+        if (!entrancePassable or !exitPassable) {
+            in.close();
+            return 5;
+        }
+        templt = std::move(field);
+        return 0;
     }
-
-    return nullptr;
+    in.close();
+    return 1;
 }

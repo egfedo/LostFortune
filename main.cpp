@@ -29,6 +29,8 @@ void printField(Field& field) {
     std::cout << "Field:\n";
     for (size_t i = 0; i < field.getHeight(); i++) {
         std::cout << i << " ";
+        if (i < 10)
+            std::cout << " ";
         for (size_t j = 0; j < field.getWidth(); j++) {
             std::cout << "[" << field.getTile(j, i).getTexture() << "|" << field.getTile(j, i).getPassability() << "|" <<
             (field.getTile(j, i).getEvent() != nullptr) << "] ";
@@ -58,10 +60,10 @@ int main() {
 //    t2.setEvent(std::make_shared<SpikeEvent>(event));
 //    Field field(20, 15, {0, 0}, {14, 14}, t);
 //    field.setTile(10, 10, t2);
-    std::unique_ptr<Field> ptr = FieldBuilder::buildField(FieldBuilder::Level::second);
-    if (ptr == nullptr)
+    Field field;
+    int code = FieldBuilder::buildField(FieldBuilder::Level::second, field);
+    if (code != 0)
         return 0;
-    Field field = *ptr;
     printField(field);
     PlayerHandler handler(9, 8, player, field);
     printHandler(handler);

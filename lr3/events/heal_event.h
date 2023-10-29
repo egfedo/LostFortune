@@ -14,8 +14,8 @@ private:
 
 public:
     HealEvent(size_t amt, size_t textureID);
-    size_t getTextureID() const override;
-    void eventHandler(PlayerHandler * instance) override;
+    size_t getTextureID() const final;
+    void eventHandler(PlayerHandler * instance) final;
 };
 
 

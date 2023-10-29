@@ -14,8 +14,8 @@ private:
     size_t textureID;
 public:
     SpikeEvent(size_t damageAmt, size_t textureID);
-    size_t getTextureID() const override;
-    void eventHandler(PlayerHandler * instance) override;
+    size_t getTextureID() const final;
+    void eventHandler(PlayerHandler * instance) final;
 };
 
 
