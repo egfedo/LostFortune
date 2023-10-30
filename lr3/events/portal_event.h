@@ -10,11 +10,9 @@
 class PortalEvent : public EventInterface {
 private:
     std::pair<size_t, size_t> newCoord;
-    size_t textureID;
 
 public:
-    PortalEvent(std::pair<size_t, size_t> newCoord, size_t textureID);
-    size_t getTextureID() const final;
+    PortalEvent(std::pair<size_t, size_t> newCoord);
     void eventHandler(PlayerHandler * instance) final;
 };
 

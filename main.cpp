@@ -61,9 +61,11 @@ int main() {
 //    Field field(20, 15, {0, 0}, {14, 14}, t);
 //    field.setTile(10, 10, t2);
     Field field;
-    int code = FieldBuilder::buildField(FieldBuilder::Level::second, field);
-    if (code != 0)
+    int code = FieldBuilder::buildField(1, field);
+    if (code) {
+        std::cout << "Error " << code << " while loading a field" << std::endl;
         return 0;
+    }
     printField(field);
     PlayerHandler handler(9, 8, player, field);
     printHandler(handler);

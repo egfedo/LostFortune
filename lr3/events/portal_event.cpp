@@ -6,12 +6,8 @@
 
 #include <utility>
 
-PortalEvent::PortalEvent(std::pair<size_t, size_t> newCoord, size_t textureID) : newCoord(std::move(newCoord)),
-    textureID(textureID) {}
+PortalEvent::PortalEvent(std::pair<size_t, size_t> newCoord) : newCoord(std::move(newCoord)) {}
 
-size_t PortalEvent::getTextureID() const {
-    return textureID;
-}
 
 void PortalEvent::eventHandler(PlayerHandler *instance) {
     instance->setCoords(newCoord.first, newCoord.second);

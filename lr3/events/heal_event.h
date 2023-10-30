@@ -10,11 +10,9 @@
 class HealEvent : public EventInterface {
 private:
     size_t healAmt;
-    size_t textureID;
 
 public:
-    HealEvent(size_t amt, size_t textureID);
-    size_t getTextureID() const final;
+    HealEvent(size_t amt);
     void eventHandler(PlayerHandler * instance) final;
 };
 

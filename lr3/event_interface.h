@@ -12,7 +12,6 @@ class EventInterface;
 class EventInterface {
 public:
     virtual void eventHandler(PlayerHandler* instance) = 0;
-    virtual size_t getTextureID() const = 0;
 };
 
 

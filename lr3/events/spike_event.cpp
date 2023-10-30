@@ -4,14 +4,10 @@
 
 #include "spike_event.h"
 
-SpikeEvent::SpikeEvent(size_t damageAmt, size_t textureID) : damageAmt(damageAmt), textureID(textureID) {
+SpikeEvent::SpikeEvent(size_t damageAmt) : damageAmt(damageAmt) {
 
 }
 
 void SpikeEvent::eventHandler(PlayerHandler * instance) {
     instance->dealDamage(damageAmt);
-}
-
-size_t SpikeEvent::getTextureID() const {
-    return textureID;
 }

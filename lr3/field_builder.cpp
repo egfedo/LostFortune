@@ -4,21 +4,8 @@
 
 #include "field_builder.h"
 
-//
-//void FieldBuilder::buildField(Field &instance, FieldBuilder::Level level) {
-//    Tile wall(false, 1);
-//    Tile grass(true, 2);
-//    switch (level) {
-//        case FieldBuilder::Level::first:
-//
-//            return;
-//        case FieldBuilder::Level::second:
-//            return;
-//    }
-//
-//}
 
-int FieldBuilder::buildField(FieldBuilder::Level level, Field &templt) {
+int FieldBuilder::buildField(size_t level, Field &templt) {
     std::string filename;
     std::stringstream nameFormat;
     nameFormat << "./level" << static_cast<size_t>(level) << ".txt";
@@ -53,8 +40,8 @@ int FieldBuilder::buildField(FieldBuilder::Level level, Field &templt) {
         Tile floor(true, 1);
         Tile eventSample(true, 1);
         std::vector<std::pair<size_t, size_t>> portals;
-        SpikeEvent spike(5, 3);
-        HealEvent heal(10, 4);
+        SpikeEvent spike(5);
+        HealEvent heal(10);
 
         for (size_t i = 0; i < field.getWidth(); i++) {
             if (not std::getline(in, line)) {
@@ -87,13 +74,13 @@ int FieldBuilder::buildField(FieldBuilder::Level level, Field &templt) {
                 }
             }
         }
-        PortalEvent portal({0, 0}, 0);
+        PortalEvent portal({0, 0});
         for (size_t i = 0; i < portals.size() - 1; i++) {
-            portal = PortalEvent(portals[i+1], 5);
+            portal = PortalEvent(portals[i+1]);
             eventSample.setEvent(std::make_shared<PortalEvent>(portal));
             field.setTile(portals[i].first, portals[i].second, eventSample);
         }
-        portal = PortalEvent(portals[0], 5);
+        portal = PortalEvent(portals[0]);
         eventSample.setEvent(std::make_shared<PortalEvent>(portal));
         field.setTile(portals[portals.size()-1].first, portals[portals.size()-1].second, eventSample);
         bool entrancePassable = field.getTile(field.getEntrance().first, field.getEntrance().second).getPassability();
@@ -102,9 +89,36 @@ int FieldBuilder::buildField(FieldBuilder::Level level, Field &templt) {
             in.close();
             return 5;
         }
+        if (not checkPassability(field)) {
+            in.close();
+            return 6;
+        }
         templt = std::move(field);
         return 0;
     }
     in.close();
     return 1;
 }
+
+bool FieldBuilder::checkPassability(Field &instance) {
+    Field temp = instance;
+    floodFill(temp, instance.getEntrance());
+    return not temp.getTile(instance.getExit().first, instance.getExit().second).getPassability();
+}
+
+void FieldBuilder::floodFill(Field &temp, std::pair<size_t, size_t> coords) {
+    if (!temp.getTile(coords.first, coords.second).getPassability())
+        return;
+    Tile tile = temp.getTile(coords.first, coords.second);
+    tile.setPassability(false);
+    temp.setTile(coords.first, coords.second, tile);
+    if (coords.first != 0)
+        floodFill(temp, {coords.first - 1, coords.second});
+    if (coords.first != temp.getWidth() - 1)
+        floodFill(temp, {coords.first + 1, coords.second});
+    if (coords.second != 0)
+        floodFill(temp, {coords.first, coords.second - 1});
+    if (coords.second != temp.getHeight() - 1)
+        floodFill(temp, {coords.first, coords.second + 1});
+}
+

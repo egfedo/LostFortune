@@ -11,10 +11,8 @@
 class SpikeEvent : public EventInterface {
 private:
     size_t damageAmt;
-    size_t textureID;
 public:
-    SpikeEvent(size_t damageAmt, size_t textureID);
-    size_t getTextureID() const final;
+    SpikeEvent(size_t damageAmt);
     void eventHandler(PlayerHandler * instance) final;
 };
 

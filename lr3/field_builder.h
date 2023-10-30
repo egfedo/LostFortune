@@ -13,11 +13,11 @@
 #include <sstream>
 
 class FieldBuilder {
+private:
+    static bool checkPassability(Field &instance);
+    static void floodFill(Field& temp, std::pair<size_t, size_t> coords);
 public:
-    enum class Level {
-        first, second
-    };
-    static int buildField(Level level, Field &templt);
+    static int buildField(size_t level, Field &templt);
 };
 
 

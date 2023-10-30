@@ -1,27 +1,37 @@
 @startuml
 'https://plantuml.com/class-diagram
+left to right direction
 
-abstract class AbstractList
-abstract AbstractCollection
-interface List
-interface Collection
 
-List <|-- AbstractList
-Collection <|-- AbstractCollection
-
-Collection <|- List
-AbstractCollection <|- AbstractList
-AbstractList <|-- ArrayList
-
-class ArrayList {
-Object[] elementData
-size()
+interface EventInterface {
++ virtual void eventHandler(PlayerHandler* instance) = 0
 }
 
-enum TimeUnit {
-DAYS
-HOURS
-MINUTES
+class HealEvent {
+- size_t healAmt
++ HealEvent(size_t amt)
++ void eventHandler(PlayerHandler * instance) final
 }
 
+class SpikeEvent {
+    - size_t damageAmt
+    + SpikeEvent(size_t damageAmt)
+    + void eventHandler(PlayerHandler * instance) final
+}
+
+class PortalEvent {
+    - std::pair<size_t, size_t> newCoord
+
+    + PortalEvent(std::pair<size_t, size_t> newCoord)
+    + void eventHandler(PlayerHandler * instance) final
+}
+EventInterface <|.. HealEvent
+EventInterface <|.. SpikeEvent
+EventInterface <|.. PortalEvent
+
+class FieldBuilder {
+    - static bool checkPassability(Field &instance)
+    - static void floodFill(Field& temp, std::pair<size_t, size_t> coords)
+    + static int buildField(size_t level, Field &templt)
+}
 @enduml
