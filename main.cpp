@@ -3,6 +3,7 @@
 #include "player_handler.h"
 #include "lr3/events/spike_event.h"
 #include "lr3/field_builder.h"
+#include "lr3/file_wrapper.h"
 
 void printPlayer(Player& player) {
     std::cout << "Player:\n";
@@ -60,17 +61,14 @@ int main() {
 //    t2.setEvent(std::make_shared<SpikeEvent>(event));
 //    Field field(20, 15, {0, 0}, {14, 14}, t);
 //    field.setTile(10, 10, t2);
+    FileWrapper wrapper(0);
     Field field;
-    int code = FieldBuilder::buildField(1, field);
-    if (code) {
-        std::cout << "Error " << code << " while loading a field" << std::endl;
-        return 0;
-    }
+    FieldBuilder::buildField(field, &wrapper);
     printField(field);
-    PlayerHandler handler(9, 8, player, field);
+    PlayerHandler handler(1, 1, player, field);
     printHandler(handler);
     printPlayer(player);
-    handler.move(PlayerHandler::Direction::right);
+    handler.move(PlayerHandler::Direction::down);
     printHandler(handler);
     printPlayer(player);
 

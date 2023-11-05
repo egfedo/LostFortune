@@ -21,4 +21,10 @@ add_executable(OOP_game main.cpp
         lr3/events/portal_event.h
         lr3/events/portal_event.cpp
         lr3/field_builder.h
-        lr3/field_builder.cpp)
+        lr3/field_builder.cpp
+        lr3/line_stream.h
+        lr3/line_stream.cpp
+        lr3/file_wrapper.h
+        lr3/file_wrapper.cpp
+        lr4/game.h
+        lr4/game.cpp)

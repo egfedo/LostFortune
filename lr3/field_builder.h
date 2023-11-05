@@ -11,13 +11,14 @@
 #include "./events/heal_event.h"
 #include <fstream>
 #include <sstream>
+#include "line_stream.h"
 
 class FieldBuilder {
 private:
     static bool checkPassability(Field &instance);
     static void floodFill(Field& temp, std::pair<size_t, size_t> coords);
 public:
-    static int buildField(size_t level, Field &templt);
+    static int buildField(Field &templt, LineStream* ptr);
 };
 
 
