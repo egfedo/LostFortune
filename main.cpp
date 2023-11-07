@@ -1,10 +1,12 @@
 #include <iostream>
-
+#include <ncurses.h>
 #include "player_handler.h"
 #include "lr3/events/spike_event.h"
 #include "lr3/field_builder.h"
 #include "lr3/file_wrapper.h"
-
+#include "lr4/game.h"
+#include "lr4/test/test_input.h"
+#include "lr4/test/test_output.h"
 void printPlayer(Player& player) {
     std::cout << "Player:\n";
     std::cout << "\tHealth " << player.getHealth() << "\n";
@@ -45,8 +47,17 @@ void printField(Field& field) {
     std::cout << std::endl;
 }
 int main() {
-    Player player(10, 20, 4);
-    printPlayer(player);
+    initscr();
+    noecho();
+    keypad(stdscr, true);
+    start_color();
+    Game game{};
+    TestInput input;
+    TestOutput output;
+    game.routine(&output, &input);
+    endwin();
+//    Player player(10, 20, 4);
+//    printPlayer(player);
 //    player.setEquip(Player::equipID::sword, true);
 //    player.setHealth(23);
 //    printPlayer(player);
@@ -61,16 +72,16 @@ int main() {
 //    t2.setEvent(std::make_shared<SpikeEvent>(event));
 //    Field field(20, 15, {0, 0}, {14, 14}, t);
 //    field.setTile(10, 10, t2);
-    FileWrapper wrapper(0);
-    Field field;
-    FieldBuilder::buildField(field, &wrapper);
-    printField(field);
-    PlayerHandler handler(1, 1, player, field);
-    printHandler(handler);
-    printPlayer(player);
-    handler.move(PlayerHandler::Direction::down);
-    printHandler(handler);
-    printPlayer(player);
+//    FileWrapper wrapper(0);
+//    Field field;
+//    FieldBuilder::buildField(field, &wrapper);
+//    printField(field);
+//    PlayerHandler handler(1, 1, player, field);
+//    printHandler(handler);
+//    printPlayer(player);
+//    handler.move(PlayerHandler::Direction::down);
+//    printHandler(handler);
+//    printPlayer(player);
 
 //    std::cout << "moving down" << std::endl;
 //    handler.move(PlayerHandler::Direction::down);
