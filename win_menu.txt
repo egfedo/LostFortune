@@ -1,0 +1,6 @@
+2
+You win!
+Main menu
+menu main
+Exit
+exit

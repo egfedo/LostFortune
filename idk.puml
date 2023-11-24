@@ -1,37 +1,111 @@
 @startuml
 'https://plantuml.com/class-diagram
 left to right direction
+'<img src="https://i.ibb.co/3sFCs7N/IMG-20231110-121709-503.jpg">
 
-
-interface EventInterface {
-+ virtual void eventHandler(PlayerHandler* instance) = 0
+class Game {
+    - State gameState
+    - size_t level
+    - std::map<std::string, Menu> menus
+    - std::vector<Level> levels
+    + Game(std::map<std::string, Menu> menus, std::vector<Level> levels)
+    + void routine(OutputInterface* output, InputInterface* input)
 }
 
-class HealEvent {
-- size_t healAmt
-+ HealEvent(size_t amt)
-+ void eventHandler(PlayerHandler * instance) final
+enum State {
+menu
+ingame
+exit
 }
 
-class SpikeEvent {
-    - size_t damageAmt
-    + SpikeEvent(size_t damageAmt)
-    + void eventHandler(PlayerHandler * instance) final
+class Menu {
+    - std::string title
+    - std::vector<Button> buttons
+    - size_t current
+    + Menu(std::string title, std::vector<Button> buttons)
+    + Menu() = default
+    + std::pair<std::string, std::string> routine(OutputInterface* output, InputInterface* input)
 }
 
-class PortalEvent {
-    - std::pair<size_t, size_t> newCoord
+class Level {
+    - Player player
+    - std::shared_ptr<Field> field
 
-    + PortalEvent(std::pair<size_t, size_t> newCoord)
-    + void eventHandler(PlayerHandler * instance) final
+    + Level(Player player, std::shared_ptr<Field> field)
+    + Level()
+    + Level::Command routine(InputInterface* input, OutputInterface* output)
 }
-EventInterface <|.. HealEvent
-EventInterface <|.. SpikeEvent
-EventInterface <|.. PortalEvent
+enum Level::Command {
+exit
+death
+win
+}
 
-class FieldBuilder {
-    - static bool checkPassability(Field &instance)
-    - static void floodFill(Field& temp, std::pair<size_t, size_t> coords)
-    + static int buildField(size_t level, Field &templt)
+interface LineStream {
+    virtual std::string getLine() = 0
 }
+
+class FileWrapper {
+    - std::ifstream file
+
+    + explicit FileWrapper(size_t levelID)
+    + FileWrapper(const std::string& fileName)
+    + std::string getLine() final
+    + void reopen(const std::string& fileName)
+    + ~FileWrapper()
+}
+
+interface InputInterface {
+    + virtual Command getCommandInput(bool wait) = 0;
+}
+
+enum InputInterface::Command {
+none
+idle
+up
+down
+left
+right
+enter
+exit
+}
+
+class Button {
+    + std::string text;
+    + std::pair<std::string, std::string> action;
+
+    + Button(std::string text, std::pair<std::string, std::string> action);
+}
+
+class TestInput {
+    - std::map<char, InputInterface::Command> commands;
+    + TestInput();
+    + InputInterface::Command getCommandInput(bool wait) final;
+    + ~TestInput();
+}
+
+class MenuBuilder {
+    + static Menu buildMenu(LineStream* stream);
+}
+
+class LevelBuilder {
+    - std::map<std::string, Player::equipID> string2equip
+    + Level buildLevel(LineStream* levelStream, LineStream* fieldStream);
+}
+
+State ---* Game
+Menu ---* Game
+Level ---* Game
+Button ---* Menu
+Level::Command ---* Level
+FileWrapper ...|> LineStream
+TestInput ...|> InputInterface
+InputInterface::Command ---* InputInterface
+Menu ...> InputInterface
+Level ...> InputInterface
+Game ...> InputInterface
+MenuBuilder ...> LineStream
+MenuBuilder ...> Menu
+LevelBuilder ...> LineStream
+LevelBuilder ...> Level
 @enduml

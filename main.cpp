@@ -1,99 +1,45 @@
 #include <iostream>
 #include <ncurses.h>
-#include "player_handler.h"
-#include "lr3/events/spike_event.h"
-#include "lr3/field_builder.h"
-#include "lr3/file_wrapper.h"
-#include "lr4/game.h"
-#include "lr4/test/test_input.h"
-#include "lr4/test/test_output.h"
-void printPlayer(Player& player) {
-    std::cout << "Player:\n";
-    std::cout << "\tHealth " << player.getHealth() << "\n";
-    std::cout << "\tMax Health " << player.getMaxHealth() << "\n";
-    std::cout << "\tDamage " << player.getDamage() << "\n";
-    std::cout << "Equipment:\n";
-    std::cout << "\tSword " << player.checkEquip(Player::equipID::sword) << "\n";
-    std::cout << "\tShield " << player.checkEquip(Player::equipID::shield) << "\n";
-    std::cout << "Consumables:\n";
-    std::cout << "\tBomb " << player.getConsAmt(Player::consumeID::bomb) << "\n";
-    std::cout << "\tHeal " <<player.getConsAmt(Player::consumeID::heal) << "\n";
-    std::cout << std::endl;
-}
+#include "player/player_handler.h"
+#include "field/field_builder.h"
+#include "input_output/implementations/file_wrapper.h"
+#include "game/game.h"
+#include "input_output/implementations/test_input.h"
+#include "input_output/implementations/test_output.h"
+#include "input_output/implementations/file_input.h"
+#include "game/menu/menu_builder.h"
+#include "game/level/level_builder.h"
 
-void printHandler(PlayerHandler& handler) {
-    std::cout << "Handler:\n";
-    std::cout << "\tX " << handler.getCoord(PlayerHandler::Coord::X) << "\n";
-    std::cout << "\tY " << handler.getCoord(PlayerHandler::Coord::Y) << "\n";
-    std::cout << std::endl;
-}
+#define LEVEL_COUNT 2
 
-void printField(Field& field) {
-    std::cout << "Field:\n";
-    for (size_t i = 0; i < field.getHeight(); i++) {
-        std::cout << i << " ";
-        if (i < 10)
-            std::cout << " ";
-        for (size_t j = 0; j < field.getWidth(); j++) {
-            std::cout << "[" << field.getTile(j, i).getTexture() << "|" << field.getTile(j, i).getPassability() << "|" <<
-            (field.getTile(j, i).getEvent() != nullptr) << "] ";
-
-        }
-        std::cout << "\n";
-
-    }
-    std::cout << "\tEntrance: " << field.getEntrance().first << " " << field.getEntrance().second << "\n";
-    std::cout << "\tExit: " << field.getExit().first << " " << field.getExit().second << "\n";
-    std::cout << std::endl;
-}
 int main() {
-    initscr();
-    noecho();
-    keypad(stdscr, true);
-    start_color();
-    Game game{};
+//    FileWrapper file("inputs.txt");
+//    FileInput input(&file);
+    FileWrapper file("main_menu.txt");
+    Menu main = MenuBuilder::buildMenu(&file);
+    file.reopen("select_menu.txt");
+    Menu select = MenuBuilder::buildMenu(&file);
+    file.reopen("death_menu.txt");
+    Menu death = MenuBuilder::buildMenu(&file);
+    file.reopen("win_menu.txt");
+    Menu win = MenuBuilder::buildMenu(&file);
+    std::map<std::string, Menu> menus = {
+            {"main", main},
+            {"select", select},
+            {"death", death},
+            {"win", win},
+    };
+    LevelBuilder levelBuilder;
+    std::vector<Level> levels;
+    FileWrapper fieldFile(0);
+    for (size_t i = 0; i < LEVEL_COUNT; i++) {
+        file.reopen("level" + std::to_string(i) + ".txt");
+        fieldFile.reopen("field" + std::to_string(i) + ".txt");
+        levels.push_back(levelBuilder.buildLevel(&file, &fieldFile));
+    }
     TestInput input;
     TestOutput output;
+    Game game{menus, levels};
     game.routine(&output, &input);
-    endwin();
-//    Player player(10, 20, 4);
-//    printPlayer(player);
-//    player.setEquip(Player::equipID::sword, true);
-//    player.setHealth(23);
-//    printPlayer(player);
-//    player.setMaxHealth(25);
-//    printPlayer(player);
-//    player.setDamage(300);
-//    printPlayer(player);
-//    Tile t(true, 1);
-//    Tile t2(true, 2);
-//    SpikeEvent event(10, 1);
-//    std::shared_ptr<SpikeEvent> pt1 = std::make_shared<SpikeEvent>(event);
-//    t2.setEvent(std::make_shared<SpikeEvent>(event));
-//    Field field(20, 15, {0, 0}, {14, 14}, t);
-//    field.setTile(10, 10, t2);
-//    FileWrapper wrapper(0);
-//    Field field;
-//    FieldBuilder::buildField(field, &wrapper);
-//    printField(field);
-//    PlayerHandler handler(1, 1, player, field);
-//    printHandler(handler);
-//    printPlayer(player);
-//    handler.move(PlayerHandler::Direction::down);
-//    printHandler(handler);
-//    printPlayer(player);
-
-//    std::cout << "moving down" << std::endl;
-//    handler.move(PlayerHandler::Direction::down);
-//    printPlayer(player);
-//    printHandler(handler);
-//    handler.move(PlayerHandler::Direction::up);
-//    printHandler(handler);
-//    handler.giveConsume(Player::consumeID::heal, 300);
-//    printPlayer(player);
-//    printHandler(handler);
-//    handler.setCoords(10, 9);
-//    printHandler(handler);
-//    printField(field);
     return 0;
 }
