@@ -16,8 +16,8 @@ class PlayerHandler {
 private:
     size_t x;
     size_t y;
-    Player& player;
-    Field& field;
+    std::shared_ptr<Player> player;
+    std::shared_ptr<Field> field;
 
     void updateCoords(size_t nx, size_t ny);
 
@@ -32,6 +32,7 @@ public:
     enum class Coord {X, Y};
 
     PlayerHandler(size_t x, size_t y, Player& instance, Field& field);
+    PlayerHandler(size_t x, size_t y, std::shared_ptr<Player> instance, std::shared_ptr<Field> field);
     ~PlayerHandler() = default;
 
     size_t getCoord(Coord n) const;
@@ -59,6 +60,10 @@ public:
     size_t getConsumeAmt(Player::consumeID name);
     void giveConsume(Player::consumeID name, size_t amount);
     void removeConsume(Player::consumeID name, size_t amount);
+
+    std::shared_ptr<Field> getField();
+    PlayerHandler(const PlayerHandler& handler);
+    PlayerHandler& operator = (const PlayerHandler& handler);
 };
 
 

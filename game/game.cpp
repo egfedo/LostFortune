@@ -25,7 +25,8 @@ void Game::routine(OutputInterface* output, InputInterface* input) {
             }
         }
         if (gameState == State::ingame) {
-            exitCode = levels[level].routine(input, output);
+            stage = levels[level];
+            exitCode = stage.routine(input, output);
             switch(exitCode) {
                 case Level::Command::exit:
                     gameState = State::menu;

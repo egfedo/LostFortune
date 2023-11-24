@@ -20,7 +20,7 @@ private:
 public:
     TestOutput();
     void displayMenu(std::string title, std::vector<std::string> buttons, size_t selected) final;
-    void displayLevel(Field& field, std::pair<size_t, size_t> playerLoc, Player& instance) final;
+    void displayLevel(std::shared_ptr<Field> field, std::pair<size_t, size_t> playerLoc, std::shared_ptr<PlayerHandler> handler) final;
     ~TestOutput();
 };
 

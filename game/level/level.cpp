@@ -7,16 +7,13 @@
 #include <utility>
 
 Level::Command Level::routine(InputInterface* input, OutputInterface* output) {
-    Player playerCopy = player;
-    Field fieldCopy = *field;
-    PlayerHandler handler(fieldCopy.getEntrance().first, fieldCopy.getEntrance().second, playerCopy, fieldCopy);
-    size_t prevHealth = playerCopy.getHealth();
+    size_t prevHealth = handler->getHealth();
     bool update = true;
     InputInterface::Command cmd;
-    while (handler.isAlive()) {
+    while (handler->isAlive()) {
         if (update) {
-            output->displayLevel(fieldCopy, {handler.getCoord(PlayerHandler::Coord::X),
-                                         handler.getCoord(PlayerHandler::Coord::Y)}, playerCopy);
+            output->displayLevel(handler->getField(), {handler->getCoord(PlayerHandler::Coord::X),
+                                         handler->getCoord(PlayerHandler::Coord::Y)}, handler);
             update = false;
         }
         cmd = input->getCommandInput(false);
@@ -24,29 +21,29 @@ Level::Command Level::routine(InputInterface* input, OutputInterface* output) {
             update = true;
         switch (cmd) {
             case InputInterface::Command::up:
-                handler.move(PlayerHandler::Direction::up);
+                handler->move(PlayerHandler::Direction::up);
                 break;
             case InputInterface::Command::down:
-                handler.move(PlayerHandler::Direction::down);
+                handler->move(PlayerHandler::Direction::down);
                 break;
             case InputInterface::Command::left:
-                handler.move(PlayerHandler::Direction::left);
+                handler->move(PlayerHandler::Direction::left);
                 break;
             case InputInterface::Command::right:
-                handler.move(PlayerHandler::Direction::right);
+                handler->move(PlayerHandler::Direction::right);
                 break;
             case InputInterface::Command::exit:
                 return Command::exit;
             default:
                 break;
         }
-        if (playerCopy.getHealth() < prevHealth) {
-            prevHealth = playerCopy.getHealth();
+        if (handler->getHealth() < prevHealth) {
+            prevHealth = handler->getHealth();
             beep();
         }
-        if (handler.getCoord(PlayerHandler::Coord::X) == field->getExit().first and handler.getCoord(PlayerHandler::Coord::Y) == field->getExit().second) {
-            output->displayLevel(fieldCopy, {handler.getCoord(PlayerHandler::Coord::X),
-                                         handler.getCoord(PlayerHandler::Coord::Y)}, playerCopy);
+        if (handler->getCoord(PlayerHandler::Coord::X) == handler->getField()->getExit().first and handler->getCoord(PlayerHandler::Coord::Y) == handler->getField()->getExit().second) {
+            output->displayLevel(handler->getField(), {handler->getCoord(PlayerHandler::Coord::X),
+                                         handler->getCoord(PlayerHandler::Coord::Y)}, handler);
             usleep(500000);
             flushinp();
             return Command::win;
@@ -56,8 +53,18 @@ Level::Command Level::routine(InputInterface* input, OutputInterface* output) {
     return Command::death;
 }
 
-Level::Level(Player player, std::shared_ptr<Field> field) : field(std::move(field)), player(std::move(player)) {
+Level::Level(std::shared_ptr<PlayerHandler> handler) :
+    handler(std::move(handler)) {}
+
+Level::Level(const Level &level) {
+    PlayerHandler tmpHandler = *level.handler;
+    handler = std::make_shared<PlayerHandler>(tmpHandler);
 }
 
-Level::Level() : player(Player(20, 20, 5)) {
+Level &Level::operator =(const Level &level) {
+    Level temp(level);
+    handler = std::move(temp.handler);
+    return *this;
 }
+
+Level::Level() = default;

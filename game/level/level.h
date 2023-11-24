@@ -16,8 +16,7 @@
 
 class Level {
 private:
-    Player player;
-    std::shared_ptr<Field> field;
+    std::shared_ptr<PlayerHandler> handler;
 
 public:
     enum class Command {
@@ -25,9 +24,12 @@ public:
         death,
         win
     };
-    Level(Player player, std::shared_ptr<Field> field);
+    Level(std::shared_ptr<PlayerHandler> handler);
     Level();
     Level::Command routine(InputInterface* input, OutputInterface* output);
+
+    Level(const Level& level);
+    Level& operator = (const Level& field);
 };
 
 

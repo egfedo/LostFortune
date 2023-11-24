@@ -32,17 +32,17 @@ void TestOutput::displayMenu(std::string title, std::vector<std::string> buttons
     refresh();
 }
 
-void TestOutput::displayLevel(Field& field, std::pair<size_t, size_t> playerLoc, Player& instance) {
+void TestOutput::displayLevel(std::shared_ptr<Field> field, std::pair<size_t, size_t> playerLoc, std::shared_ptr<PlayerHandler> handler) {
     clear();
     printw("\n");
-    size_t offset = field.getWidth() + (field.getWidth() - 1);
+    size_t offset = field->getWidth() + (field->getWidth() - 1);
     offset = 40 - (offset / 2);
     char out;
-    for(size_t i = 0; i < field.getHeight(); i++) {
+    for(size_t i = 0; i < field->getHeight(); i++) {
         printw("%s", std::string(offset, ' ').c_str());
-        for(size_t j = 0; j < field.getWidth(); j++) {
+        for(size_t j = 0; j < field->getWidth(); j++) {
 
-            switch (field.getTile(j, i).getTexture()) {
+            switch (field->getTile(j, i).getTexture()) {
                 case 2:
                     out = '#';
                     break;
@@ -50,8 +50,8 @@ void TestOutput::displayLevel(Field& field, std::pair<size_t, size_t> playerLoc,
                     out = '.';
             }
 
-            if (field.getTile(j, i).getEvent() != nullptr) {
-                auto ptr = field.getTile(j, i).getEvent().get();
+            if (field->getTile(j, i).getEvent() != nullptr) {
+                auto ptr = field->getTile(j, i).getEvent().get();
                 if (typeid(*ptr) == typeid(HealEvent)) {
                     out = '%';
                     init_pair(1, COLOR_RED, COLOR_BLACK);
@@ -73,7 +73,7 @@ void TestOutput::displayLevel(Field& field, std::pair<size_t, size_t> playerLoc,
                     out = '$';
                 }
             }
-            if (i == field.getExit().second and j == field.getExit().first) {
+            if (i == field->getExit().second and j == field->getExit().first) {
                 out = 'E';
             }
             if (i == playerLoc.second and j == playerLoc.first) {
@@ -93,18 +93,18 @@ void TestOutput::displayLevel(Field& field, std::pair<size_t, size_t> playerLoc,
         printw("\n");
     }
     std::stringstream ss;
-    ss << "[Health: " << instance.getHealth() << "/" << instance.getMaxHealth() << "] [Damage: "
-    << instance.getDamage() << "]";
-    if (instance.checkEquip(Player::equipID::sword))
-        ss << " [\\]";
-    if (instance.checkEquip(Player::equipID::shield))
-        ss << " [O]";
-    if (instance.getConsAmt(Player::consumeID::coins))
-        ss << " [C: " << instance.getConsAmt(Player::consumeID::coins) << "]";
-    if (instance.getConsAmt(Player::consumeID::bomb))
-        ss << " [B: " << instance.getConsAmt(Player::consumeID::bomb) << "]";
-    if (instance.getConsAmt(Player::consumeID::heal))
-        ss << " [H: " << instance.getConsAmt(Player::consumeID::heal) << "]";
+    ss << "[Health: " << handler->getHealth() << "/" << handler->getMaxHealth() << "] [Damage: "
+    << handler->getDamage() << "]";
+    if (handler->checkEquip(Player::equipID::sword))
+        ss << " [SWORD]";
+    if (handler->checkEquip(Player::equipID::shield))
+        ss << " [SHIELD]";
+    if (handler->getConsumeAmt(Player::consumeID::coins))
+        ss << " [COINS: " << handler->getConsumeAmt(Player::consumeID::coins) << "]";
+    if (handler->getConsumeAmt(Player::consumeID::bomb))
+        ss << " [BOMBS: " << handler->getConsumeAmt(Player::consumeID::bomb) << "]";
+    if (handler->getConsumeAmt(Player::consumeID::heal))
+        ss << " [HEAL: " << handler->getConsumeAmt(Player::consumeID::heal) << "]";
     ss << "\n";
     offset = 40 - (ss.str().size() / 2);
     printw("%s%s", std::string(offset, ' ').c_str(), ss.str().c_str());

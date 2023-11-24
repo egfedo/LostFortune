@@ -31,6 +31,7 @@ Level LevelBuilder::buildLevel(LineStream *levelStream, LineStream *fieldStream)
     }
     Field fieldOut;
     FieldBuilder::buildField(fieldOut, fieldStream);
-
-    return {playerOut, std::make_shared<Field>(fieldOut)};
+    std::shared_ptr<Field> fieldPtr = std::make_shared<Field>(fieldOut);
+    PlayerHandler handler = PlayerHandler(fieldOut.getEntrance().first, fieldOut.getEntrance().second, std::make_shared<Player>(playerOut), fieldPtr);
+    return {std::make_shared<PlayerHandler>(handler)};
 }

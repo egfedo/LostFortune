@@ -52,6 +52,8 @@ add_executable(OOP_game main.cpp
         game/menu/menu_builder.h
         game/menu/menu_builder.cpp
         game/level/level_builder.h
-        game/level/level_builder.cpp)
+        game/level/level_builder.cpp
+        game/change_listener.h
+        game/change_listener.cpp)
 
 target_link_libraries(OOP_game sfml-graphics sfml-audio ncurses)

@@ -12,7 +12,7 @@
 class OutputInterface {
 public:
     virtual void displayMenu(std::string title, std::vector<std::string> buttons, size_t selected) = 0;
-    virtual void displayLevel(Field& field, std::pair<size_t, size_t> playerLoc, Player& instance) = 0;
+    virtual void displayLevel(std::shared_ptr<Field> field, std::pair<size_t, size_t> playerLoc, std::shared_ptr<PlayerHandler> handler) = 0;
 };
 
 
