@@ -8,7 +8,7 @@ SpikeEvent::SpikeEvent(size_t damageAmt) : damageAmt(damageAmt) {
 
 }
 
-uint32_t SpikeEvent::eventHandler(PlayerHandler * instance) {
+uint32_t SpikeEvent::eventHandler(AbstractEntity * instance, std::shared_ptr<Field> field, std::vector<std::vector<size_t>>& entityPos) {
     instance->dealDamage(damageAmt);
     return 1;
 }

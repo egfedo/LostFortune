@@ -20,10 +20,11 @@ public:
     enum class equipID {
         sword, shield
     };
+    inline static std::vector<equipID> possibleEquips = {equipID::sword, equipID::shield};
     enum class consumeID {
         bomb, heal, coins
     };
-
+    inline static std::vector<consumeID> possibleConsumes = {consumeID::bomb, consumeID::heal, consumeID::coins};
     size_t getHealth() const;
     void setHealth(size_t value);
 

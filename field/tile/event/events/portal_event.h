@@ -13,7 +13,7 @@ private:
 
 public:
     PortalEvent(std::pair<size_t, size_t> newCoord);
-    uint32_t eventHandler(PlayerHandler * instance) final;
+    uint32_t eventHandler(AbstractEntity * instance, std::shared_ptr<Field> field, std::vector<std::vector<size_t>>& entityPos) final;
 };
 
 

@@ -17,7 +17,6 @@ public:
         right,
         enter,
         exit
-
     };
     virtual Command getCommandInput(bool wait) = 0;
 };

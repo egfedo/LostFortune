@@ -6,59 +6,65 @@
 
 #include <utility>
 
-Level::Command Level::routine(InputInterface* input, OutputInterface* output) {
-    size_t prevHealth = handler->getHealth();
-    bool update = true;
+Level::Command Level::routine(InputInterface* input, const std::shared_ptr<ChangeObserver>& observer) {
+    EntityHandler tmp = *handler;
+    observer->startLevel(std::make_shared<EntityHandler>(tmp));
+    handler->setObserver(observer);
     InputInterface::Command cmd;
-    while (handler->isAlive()) {
-        if (update) {
-            output->displayLevel(handler->getField(), {handler->getCoord(PlayerHandler::Coord::X),
-                                         handler->getCoord(PlayerHandler::Coord::Y)}, handler);
-            update = false;
-        }
+
+    bool finished;
+    while (handler->getPlayer()->isAlive()) {
+        if(observer->executeLevelUpdates())
+            return Command::close;
+//        if (update) {
+//            output->displayLevel(handler->getField(), {handler->getCoord(PlayerHandler::Coord::X),
+//                                         handler->getCoord(PlayerHandler::Coord::Y)}, handler);
+//            update = false;
+//        }
+        finished = false;
         cmd = input->getCommandInput(false);
-        if (cmd != InputInterface::Command::none)
-            update = true;
         switch (cmd) {
             case InputInterface::Command::up:
-                handler->move(PlayerHandler::Direction::up);
+                finished = handler->movePlayer(PlayerHandler::Direction::up);
                 break;
             case InputInterface::Command::down:
-                handler->move(PlayerHandler::Direction::down);
+                finished = handler->movePlayer(PlayerHandler::Direction::down);
                 break;
             case InputInterface::Command::left:
-                handler->move(PlayerHandler::Direction::left);
+                finished = handler->movePlayer(PlayerHandler::Direction::left);
                 break;
             case InputInterface::Command::right:
-                handler->move(PlayerHandler::Direction::right);
+                finished = handler->movePlayer(PlayerHandler::Direction::right);
                 break;
             case InputInterface::Command::exit:
                 return Command::exit;
             default:
                 break;
         }
-        if (handler->getHealth() < prevHealth) {
-            prevHealth = handler->getHealth();
-            beep();
-        }
-        if (handler->getCoord(PlayerHandler::Coord::X) == handler->getField()->getExit().first and handler->getCoord(PlayerHandler::Coord::Y) == handler->getField()->getExit().second) {
-            output->displayLevel(handler->getField(), {handler->getCoord(PlayerHandler::Coord::X),
-                                         handler->getCoord(PlayerHandler::Coord::Y)}, handler);
+
+        handler->moveEnemies();
+
+        if (finished) {
+//            output->displayLevel(handler->getField(), {handler->getCoord(PlayerHandler::Coord::X),
+//                                         handler->getCoord(PlayerHandler::Coord::Y)}, handler);
+            observer->executeLevelUpdates();
             usleep(500000);
             flushinp();
             return Command::win;
         }
         usleep(16000);
     }
+    observer->executeLevelUpdates();
+    usleep(750000);
     return Command::death;
 }
 
-Level::Level(std::shared_ptr<PlayerHandler> handler) :
+Level::Level(std::shared_ptr<EntityHandler> handler) :
     handler(std::move(handler)) {}
 
 Level::Level(const Level &level) {
-    PlayerHandler tmpHandler = *level.handler;
-    handler = std::make_shared<PlayerHandler>(tmpHandler);
+    EntityHandler tmpHandler = *level.handler;
+    handler = std::make_shared<EntityHandler>(tmpHandler);
 }
 
 Level &Level::operator =(const Level &level) {

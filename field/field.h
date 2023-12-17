@@ -9,10 +9,8 @@ class Field;
 #include "tile/tile.h"
 #include <utility>
 #include <algorithm>
-#include "tile/event/events/heal_event.h"
-#include "tile/event/events/spike_event.h"
-#include "tile/event/events/portal_event.h"
-#include "tile/event/events/chest_event.h"
+#include "../game/change_observer_interface.h"
+#include "../game/change_observer.h"
 
 #define MIN_SIZE 5
 #define DEF_WIDTH 20
@@ -24,6 +22,7 @@ private:
     size_t width, height;
     std::pair<size_t, size_t> entrance;
     std::pair<size_t, size_t> exit;
+    std::shared_ptr<ChangeObserver> observer = nullptr;
 
 public:
 
@@ -42,6 +41,8 @@ public:
 
     size_t getWidth();
     size_t getHeight();
+
+    void setObserver(std::shared_ptr<ChangeObserver> observer);
 
     Field(const Field& field);
     Field& operator = (const Field& field);

@@ -3,9 +3,16 @@
 //
 
 #include "field.h"
+#include "../game/updates/impl/LevelFieldUpdate.h"
 
 #include <utility>
 #include <iostream>
+
+#include "tile/event/events/heal_event.h"
+#include "tile/event/events/spike_event.h"
+#include "tile/event/events/portal_event.h"
+#include "tile/event/events/chest_event.h"
+
 Field::Field(size_t width, size_t height) : width(width), height(height) {
     if (width < MIN_SIZE)
         width = MIN_SIZE;
@@ -33,6 +40,10 @@ void Field::setTile(size_t x, size_t y, Tile tile) {
     x = std::min(x, width - 1);
     y = std::min(y, height - 1);
     array[x][y] = tile;
+    if (observer != nullptr) {
+        LevelFieldUpdate upd({x, y}, tile);
+        observer->logLevelUpdate(std::make_shared<LevelFieldUpdate>(upd));
+    }
 }
 
 Field::~Field() {
@@ -59,7 +70,7 @@ size_t Field::getHeight() {
 }
 
 Field::Field(const Field & field) : width(field.width), height(field.height),
-    entrance(field.entrance), exit(field.exit) {
+    entrance(field.entrance), exit(field.exit), observer(field.observer) {
     array = new Tile*[width];
     Tile* line;
     for(size_t i = 0; i < width; i++) {
@@ -99,17 +110,19 @@ Field& Field::operator = (const Field& field) {
     height = temp.height;
     entrance = temp.entrance;
     exit = temp.exit;
+    observer = temp.observer;
     std::swap(array, temp.array);
     return *this;
 }
 
 Field::Field(Field&& field) : array(nullptr), width(0), height(0),
-    entrance({0, 0}), exit({0, 0}) {
+    entrance({0, 0}), exit({0, 0}), observer(nullptr) {
     std::swap(array, field.array);
     std::swap(width, field.width);
     std::swap(height, field.height);
     std::swap(entrance, field.entrance);
     std::swap(exit, field.exit);
+    std::swap(observer, field.observer);
 }
 
 Field &Field::operator = (Field &&field) {
@@ -119,6 +132,7 @@ Field &Field::operator = (Field &&field) {
         std::swap(height, field.height);
         std::swap(entrance, field.entrance);
         std::swap(exit, field.exit);
+        std::swap(observer, field.observer);
     }
     return *this;
 }
@@ -136,4 +150,8 @@ Field::Field(size_t width, size_t height, std::pair<size_t, size_t> entrance,
             array[i][j] = tile;
         }
     }
+}
+
+void Field::setObserver(std::shared_ptr<ChangeObserver> observer) {
+    this->observer = std::move(observer);
 }

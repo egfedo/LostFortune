@@ -8,14 +8,15 @@
 #include <string>
 
 class EventInterface;
-class PlayerHandler;
+class AbstractEntity;
+class Field;
 
 class EventInterface {
 public:
-    virtual uint32_t eventHandler(PlayerHandler* instance) = 0;
+    virtual uint32_t eventHandler(AbstractEntity* instance, std::shared_ptr<Field> field, std::vector<std::vector<size_t>>& entityPos) = 0;
 };
 
-#include "../../../player/player_handler.h"
-
+#include "../../../entity/entity.h"
+#include "../../field.h"
 
 #endif //OOP_GAME_EVENT_INTERFACE_H

@@ -4,7 +4,7 @@
 
 #include "test_output.h"
 
-void TestOutput::displayMenu(std::string title, std::vector<std::string> buttons, size_t selected) {
+void TestOutput::displayMenu(std::string title, std::vector<Button> buttons, size_t selected) {
     clear();
     size_t buttonsLen = 2 * buttons.size() + 1;
     size_t startPos = (23 / 2) - (buttonsLen / 2);
@@ -17,12 +17,12 @@ void TestOutput::displayMenu(std::string title, std::vector<std::string> buttons
         if (i == selected) {
             printw("%s> ", std::string(34, ' ').c_str());
             attron(A_BOLD);
-            printw("[%s]\n\n", buttons[i].c_str());
+            printw("[%s]\n\n", buttons[i].text.c_str());
             attroff(A_BOLD);
         }
 //            std::cout << std::string(34, ' ') << "> \x1b[1m[" << buttons[i] << "]\x1b[0m \n\n";
         else
-            printw("%s[%s]\n\n", std::string(35, ' ').c_str(), buttons[i].c_str());
+            printw("%s[%s]\n\n", std::string(35, ' ').c_str(), buttons[i].text.c_str());
 //            std::cout << std::string(35, ' ') << "[" << buttons[i] << "]\n\n";
     }
     for(size_t i = startPos + buttonsLen; i < 23; i++) {
@@ -32,7 +32,10 @@ void TestOutput::displayMenu(std::string title, std::vector<std::string> buttons
     refresh();
 }
 
-void TestOutput::displayLevel(std::shared_ptr<Field> field, std::pair<size_t, size_t> playerLoc, std::shared_ptr<PlayerHandler> handler) {
+void TestOutput::displayLevel(const std::shared_ptr<Field>& field,
+                              std::vector<std::shared_ptr<AbstractEntity>> entities,
+                              const std::shared_ptr<PlayerHandler>& handler,
+                              std::vector<std::vector<size_t>> entityPos) {
     clear();
     printw("\n");
     size_t offset = field->getWidth() + (field->getWidth() - 1);
@@ -76,7 +79,7 @@ void TestOutput::displayLevel(std::shared_ptr<Field> field, std::pair<size_t, si
             if (i == field->getExit().second and j == field->getExit().first) {
                 out = 'E';
             }
-            if (i == playerLoc.second and j == playerLoc.first) {
+            if (i == handler->getCoord(AbstractEntity::Coord::Y) and j == handler->getCoord(AbstractEntity::Coord::X)) {
                 out = 'B';
                 init_pair(4, COLOR_GREEN, COLOR_BLACK);
                 attron(COLOR_PAIR(4));
@@ -115,6 +118,7 @@ void TestOutput::displayLevel(std::shared_ptr<Field> field, std::pair<size_t, si
 TestOutput::TestOutput() {
     initscr();
     start_color();
+    curs_set(0);
 }
 
 TestOutput::~TestOutput() {
@@ -128,4 +132,14 @@ void TestOutput::displayWarning() {
         clear();
         printw("This terminal size (%d x %d) is unsupported. Please change it to 80x24", y, x);
     }
+}
+
+
+void TestOutput::refreshScreen() {
+    refresh();
+}
+
+
+bool TestOutput::pollEvents() {
+    return false;
 }

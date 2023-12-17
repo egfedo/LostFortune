@@ -9,7 +9,7 @@
 PortalEvent::PortalEvent(std::pair<size_t, size_t> newCoord) : newCoord(std::move(newCoord)) {}
 
 
-uint32_t PortalEvent::eventHandler(PlayerHandler *instance) {
-    instance->setCoords(newCoord.first, newCoord.second);
+uint32_t PortalEvent::eventHandler(AbstractEntity *instance, std::shared_ptr<Field> field, std::vector<std::vector<size_t>>& entityPos) {
+    instance->setCoords(newCoord.first, newCoord.second, field, entityPos);
     return 1;
 }

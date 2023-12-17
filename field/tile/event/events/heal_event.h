@@ -13,7 +13,7 @@ private:
     uint32_t uses;
 public:
     HealEvent(size_t amt, uint32_t uses);
-    uint32_t eventHandler(PlayerHandler * instance) final;
+    uint32_t eventHandler(AbstractEntity * instance, std::shared_ptr<Field> field, std::vector<std::vector<size_t>>& entityPos) final;
 };
 
 

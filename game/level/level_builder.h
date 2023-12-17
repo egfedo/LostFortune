@@ -8,6 +8,8 @@
 
 #include "level.h"
 #include "../../input_output/line_stream.h"
+#include "sstream"
+#include "../../field/field_builder.h"
 
 class LevelBuilder {
 private:

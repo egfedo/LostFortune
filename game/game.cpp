@@ -6,7 +6,7 @@
 
 #include <utility>
 
-void Game::routine(OutputInterface* output, InputInterface* input) {
+void Game::routine(std::shared_ptr<ChangeObserver> observer, InputInterface* input) {
     gameState = State::menu;
     std::pair<std::string, std::string> cmd;
     std::string currentMenu = "main";
@@ -14,7 +14,8 @@ void Game::routine(OutputInterface* output, InputInterface* input) {
     Level::Command exitCode;
     while (gameState != State::exit) {
         if (gameState == State::menu) {
-            cmd = menus[currentMenu].routine(output, input);
+            observer->startMenu(menus[currentMenu]);
+            cmd = menus[currentMenu].routine(observer, input);
             if (cmd.first == "exit")
                 gameState = State::exit;
             if (cmd.first == "menu")
@@ -26,9 +27,10 @@ void Game::routine(OutputInterface* output, InputInterface* input) {
         }
         if (gameState == State::ingame) {
             stage = levels[level];
-            exitCode = stage.routine(input, output);
+            exitCode = stage.routine(input, observer);
             switch(exitCode) {
                 case Level::Command::exit:
+                    currentMenu = "select";
                     gameState = State::menu;
                     break;
                 case Level::Command::death:
@@ -42,6 +44,9 @@ void Game::routine(OutputInterface* output, InputInterface* input) {
                         gameState = State::menu;
                         currentMenu = "win";
                     }
+                    break;
+                case Level::Command::close:
+                    gameState = State::exit;
                     break;
             }
         }

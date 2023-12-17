@@ -25,7 +25,7 @@ private:
 
 public:
     Game(std::map<std::string, Menu> menus, std::vector<Level> levels);
-    void routine(OutputInterface* output, InputInterface* input);
+    void routine(std::shared_ptr<ChangeObserver> observer, InputInterface* input);
 };
 
 

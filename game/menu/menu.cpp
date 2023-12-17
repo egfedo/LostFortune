@@ -9,26 +9,17 @@
 Menu::Menu(std::string title, std::vector<Button> buttons) :
     title(std::move(title)), buttons(std::move(buttons)), current(0) {}
 
-std::pair<std::string, std::string> Menu::routine(OutputInterface* output, InputInterface* input) {
+std::pair<std::string, std::string> Menu::routine(std::shared_ptr<ChangeObserver> observer, InputInterface* input) {
     InputInterface::Command cmd;
-    std::vector<std::string> buttonTexts;
-    buttonTexts.reserve(buttons.size());
-    for(const auto& bt : buttons)
-        buttonTexts.push_back(bt.text);
     while (true) {
-        output->displayMenu(title, buttonTexts, current);
-//        usleep(16000);
+        if(observer->executeMenuUpdates())
+            return {"exit", ""};
+        usleep(16000);
         cmd = input->getCommandInput(true);
         switch (cmd) {
             case InputInterface::Command::up:
-                if (current != 0)
-//                    std::cout << "\a";
-                    current--;
-                break;
             case InputInterface::Command::down:
-                if (current != buttons.size() - 1)
-//                    std::cout << "\a";
-                    current++;
+                moveCurrent(cmd, observer);
                 break;
             case InputInterface::Command::exit:
                 return {"exit", ""};
@@ -40,4 +31,36 @@ std::pair<std::string, std::string> Menu::routine(OutputInterface* output, Input
         }
     }
     return {"", ""};
+}
+
+std::string Menu::getTitle() {
+    return title;
+}
+
+std::vector<Button> Menu::getButtons() {
+    return {buttons};
+}
+
+size_t Menu::getCurrent() {
+    return current;
+}
+
+void Menu::moveCurrent(InputInterface::Command dir, std::shared_ptr<ChangeObserver> observer) {
+    if (observer != nullptr) {
+        MenuUpdateButtonSelect upd(dir);
+        observer->logMenuUpdate(std::make_shared<MenuUpdateButtonSelect>(upd));
+    }
+
+    switch (dir) {
+        case InputInterface::Command::up:
+            if (current != 0)
+                current--;
+            break;
+        case InputInterface::Command::down:
+            if (current != buttons.size() - 1)
+                current++;
+            break;
+        default:
+            break;
+    }
 }

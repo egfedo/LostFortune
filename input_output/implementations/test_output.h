@@ -19,8 +19,14 @@ private:
     void displayWarning();
 public:
     TestOutput();
-    void displayMenu(std::string title, std::vector<std::string> buttons, size_t selected) final;
-    void displayLevel(std::shared_ptr<Field> field, std::pair<size_t, size_t> playerLoc, std::shared_ptr<PlayerHandler> handler) final;
+    void displayMenu(std::string title, std::vector<Button> buttons, size_t selected) final;
+//    virtual void redrawButton(std::vector<Button> buttons, size_t oldPos, size_t newPos) = 0;
+    void displayLevel(const std::shared_ptr<Field>& field,
+                      std::vector<std::shared_ptr<AbstractEntity>> entities,
+                      const std::shared_ptr<PlayerHandler>& handler,
+                      std::vector<std::vector<size_t>> entityPos) final;
+    void refreshScreen() final;
+    bool pollEvents() final;
     ~TestOutput();
 };
 

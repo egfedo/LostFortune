@@ -58,9 +58,9 @@ TestInput::TestInput() {
     commands[0] = InputInterface::Command::none;
     commands[-1] = InputInterface::Command::none;
 
-    initscr();
-    noecho();
-    keypad(stdscr, true);
+//    initscr();
+//    noecho();
+//    keypad(stdscr, true);
 }
 
 TestInput::~TestInput() {

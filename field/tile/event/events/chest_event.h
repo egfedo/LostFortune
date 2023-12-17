@@ -13,7 +13,8 @@ private:
     uint32_t amount;
 public:
     ChestEvent(Player::consumeID contents, uint32_t amount);
-    uint32_t eventHandler(PlayerHandler *instance) final;
+    uint32_t eventHandler(AbstractEntity *instance, std::shared_ptr<Field> field, std::vector<std::vector<size_t>>& entityPos) final;
+    Player::consumeID consumeType() const;
 };
 
 

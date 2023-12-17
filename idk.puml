@@ -1,111 +1,191 @@
 @startuml
 'https://plantuml.com/class-diagram
-left to right direction
+
 '<img src="https://i.ibb.co/3sFCs7N/IMG-20231110-121709-503.jpg">
+left to right direction
 
-class Game {
-    - State gameState
-    - size_t level
-    - std::map<std::string, Menu> menus
-    - std::vector<Level> levels
-    + Game(std::map<std::string, Menu> menus, std::vector<Level> levels)
-    + void routine(OutputInterface* output, InputInterface* input)
+class AbstractEntity {
+#    size_t x
+#    size_t y
+#    uint32_t textureID = 0
+#    size_t id = 0
+#    std::shared_ptr<ChangeObserver> observer
++    AbstractEntity()
++    AbstractEntity(size_t x, size_t y, uint32_t textureID)
++    AbstractEntity(size_t x, size_t y, std::shared_ptr<ChangeObserver> observer, uint32_t textureID)
++    AbstractEntity(const AbstractEntity &handler)
++    size_t getCoord(Coord n) const
++    MoveResult setCoord(Coord n, size_t value,
++                        const std::shared_ptr<Field>& field,
++                        std::vector<std::vector<size_t>>& entityPos)
++    MoveResult setCoords(size_t x, size_t y, const std::shared_ptr<Field>& field, std::vector<std::vector<size_t>>& entityPos)
++    MoveResult move(Direction dir, const std::shared_ptr<Field>& field, std::vector<std::vector<size_t>>& entityPos)
++    virtual bool isAlive() = 0
++    virtual size_t getHealth() = 0
++    virtual void dealDamage(size_t amount) = 0
++    virtual void heal(size_t amount) = 0
++    virtual size_t getMaxHealth() = 0
++    virtual void upgradeMaxHealth(size_t amount) = 0
++    virtual size_t getDamage() = 0
++    virtual void increaseDamage(size_t value) = 0
++    virtual void decreaseDamage(size_t value) = 0
++    void setObserver(std::shared_ptr<ChangeObserver> observer)
++    virtual std::shared_ptr<AbstractEntity> getCopy() = 0
++    uint32_t getTextureID()
++    void setID(size_t id)
+#    std::pair<size_t, size_t> getDirectionCoords(Direction dir, const std::shared_ptr<Field>& field)
+#    MoveResult updateCoords(size_t nx, size_t ny, const std::shared_ptr<Field>& field, std::vector<std::vector<size_t>>& entityPos)
+}
+enum Direction {
+        up,
+        down,
+        left,
+        right,
+        none
+}
+enum Coord {
+X,
+Y
+}
+enum MoveResult {
+        success,
+        entity,
+        wall
+}
+class EntityHandler {
+-    std::shared_ptr<Field> field
+-    std::vector<std::shared_ptr<AbstractEntity>> entities
+-    std::vector<std::vector<size_t>> entityPos
++    explicit EntityHandler(const std::shared_ptr<PlayerHandler>& handler, const std::shared_ptr<Field>& field)
++    bool movePlayer(AbstractEntity::Direction direction)
++    void moveEnemies()
++    void setObserver(const std::shared_ptr<ChangeObserver>& observer)
++    std::shared_ptr<PlayerHandler> getPlayer()
++    std::shared_ptr<Field> getField()
++    EntityHandler(const EntityHandler& handler)
++    EntityHandler& operator = (const EntityHandler& handler)
++    std::vector<std::shared_ptr<AbstractEntity>> getDrawable()
++    std::vector<std::vector<size_t>>& getEntityPos()
++    std::shared_ptr<AbstractEntity> getEntity(size_t id)
++    void addEntity(const std::shared_ptr<AbstractEntity>& entity)
+}
+class BehaviourEnemy {
+-    MoveBehaviour moveBehaviour
+-    InteractBehaviour interactBehaviour
+-    size_t timer = 0
+-    size_t activationPeriod
++    void activate(std::shared_ptr<Field> field,
++                  std::vector<std::shared_ptr<AbstractEntity>> entities,
++                  std::vector<std::vector<size_t>>& entityPos) final
++    std::shared_ptr<AbstractEntity> getCopy() override
++    BehaviourEnemy(size_t x, size_t y, size_t health, size_t maxHealth, size_t damage, uint32_t textureID, size_t activationPeriod, MoveBehaviour moveBehaviour, InteractBehaviour interactBehaviour)
++    BehaviourEnemy(const BehaviourEnemy& bEnemy)
+}
+class AbstractEnemy {
+#    size_t health
+#    size_t maxHealth
+#    size_t damage
++    AbstractEnemy(size_t x, size_t y, size_t health, size_t maxHealth, size_t damage, const std::shared_ptr<ChangeObserver>& observer, uint32_t textureID)
++    bool isAlive() override
++    size_t getHealth() override
++    void dealDamage(size_t amount) override
++    void heal(size_t amount) override
++    size_t getMaxHealth() override
++    void upgradeMaxHealth(size_t amount) override
++    size_t getDamage() override
++    void increaseDamage(size_t value) override
++    void decreaseDamage(size_t value) override
++    virtual void activate(std::shared_ptr<Field> field,
++                  std::vector<std::shared_ptr<AbstractEntity>> entities,
++                  std::vector<std::vector<size_t>>& entityPos) = 0
+}
+class PlayerHandler {
+-    size_t x
+-    size_t y
+-    std::shared_ptr<Player> player
++    PlayerHandler(size_t x, size_t y, Player& instance, uint32_t textureID)
++    PlayerHandler(size_t x, size_t y, std::shared_ptr<Player> instance,
++                  std::shared_ptr<ChangeObserver> observer,
++                  uint32_t textureID, size_t id = 0)
++    ~PlayerHandler() = default
++    bool isAlive() final
++    size_t getHealth() final
++    void dealDamage(size_t amount) final
++    void heal(size_t amount) final
++    size_t getMaxHealth() final
++    void upgradeMaxHealth(size_t amount) final
++    size_t getDamage() final
++    void increaseDamage(size_t value) final
++    void decreaseDamage(size_t value) final
++    bool checkEquip(Player::equipID name)
++    void giveEquip(Player::equipID name)
++    void removeEquip(Player::equipID name)
++    size_t getConsumeAmt(Player::consumeID name)
++    void giveConsume(Player::consumeID name, size_t amount)
++    void removeConsume(Player::consumeID name, size_t amount)
++    PlayerHandler(const PlayerHandler& handler)
++    PlayerHandler& operator = (const PlayerHandler& handler)
++    std::shared_ptr<AbstractEntity> getCopy() override
+}
+class DealDamageInteraction {
+-    size_t damage
++    void interact(const std::shared_ptr<AbstractEntity>& target,
++                  const std::shared_ptr<Field>& field,
++                  AbstractEntity::Direction direction,
++                  std::vector<std::vector<size_t>>& entityPos,
++                  size_t possibleDmg)
++    explicit DealDamageInteraction(size_t damage)
++    DealDamageInteraction()
+}
+class KnockbackAttack {
+-    size_t possibleDamage
++    void interact(const std::shared_ptr<AbstractEntity>& target,
++                  const std::shared_ptr<Field>& field,
++                  AbstractEntity::Direction direction,
++                  std::vector<std::vector<size_t>>& entityPos,
++                  size_t possibleDmg)
++    KnockbackAttack(size_t possibleDamage)
++    KnockbackAttack()
+}
+class PathfindMovement {
+-    bool pursuing = false
+-    size_t watchRange = DEFAULT_WATCH_RANGE
+-    size_t pursuitRange = DEFAULT_PURSUIT_RANGE
++    AbstractEntity::Direction moveDirection(std::pair<int64_t, int64_t> currentPos,
++                                            std::vector<std::shared_ptr<AbstractEntity>>& entities,
++                                            const std::shared_ptr<Field>& field,
++                                            std::vector<std::vector<size_t>>& entityPos)
++    PathfindMovement() = default
++    PathfindMovement(size_t watchRange, size_t pursuitRange)
+}
+class PatrolMovement {
+-    std::pair<int64_t, int64_t> pointA
+-    std::pair<int64_t, int64_t> pointB
+    - Direction movingTo
++    AbstractEntity::Direction moveDirection(std::pair<int64_t, int64_t> currentPos,
++                                            std::vector<std::shared_ptr<AbstractEntity>>& entities,
++                                            const std::shared_ptr<Field>& field,
++                                            std::vector<std::vector<size_t>>& entityPos)
++    PatrolMovement(std::pair<int64_t, int64_t> pointA, std::pair<int64_t, int64_t> pointB)
++    PatrolMovement()
 }
 
-enum State {
-menu
-ingame
-exit
+enum Direction {
+A
+B
 }
 
-class Menu {
-    - std::string title
-    - std::vector<Button> buttons
-    - size_t current
-    + Menu(std::string title, std::vector<Button> buttons)
-    + Menu() = default
-    + std::pair<std::string, std::string> routine(OutputInterface* output, InputInterface* input)
-}
+Direction ---* AbstractEntity
+Coord ---* AbstractEntity
+MoveResult ---* AbstractEntity
 
-class Level {
-    - Player player
-    - std::shared_ptr<Field> field
+AbstractEnemy ---|> AbstractEntity
+PlayerHandler ---|> AbstractEntity
+BehaviourEnemy ---|> AbstractEnemy
 
-    + Level(Player player, std::shared_ptr<Field> field)
-    + Level()
-    + Level::Command routine(InputInterface* input, OutputInterface* output)
-}
-enum Level::Command {
-exit
-death
-win
-}
-
-interface LineStream {
-    virtual std::string getLine() = 0
-}
-
-class FileWrapper {
-    - std::ifstream file
-
-    + explicit FileWrapper(size_t levelID)
-    + FileWrapper(const std::string& fileName)
-    + std::string getLine() final
-    + void reopen(const std::string& fileName)
-    + ~FileWrapper()
-}
-
-interface InputInterface {
-    + virtual Command getCommandInput(bool wait) = 0;
-}
-
-enum InputInterface::Command {
-none
-idle
-up
-down
-left
-right
-enter
-exit
-}
-
-class Button {
-    + std::string text;
-    + std::pair<std::string, std::string> action;
-
-    + Button(std::string text, std::pair<std::string, std::string> action);
-}
-
-class TestInput {
-    - std::map<char, InputInterface::Command> commands;
-    + TestInput();
-    + InputInterface::Command getCommandInput(bool wait) final;
-    + ~TestInput();
-}
-
-class MenuBuilder {
-    + static Menu buildMenu(LineStream* stream);
-}
-
-class LevelBuilder {
-    - std::map<std::string, Player::equipID> string2equip
-    + Level buildLevel(LineStream* levelStream, LineStream* fieldStream);
-}
-
-State ---* Game
-Menu ---* Game
-Level ---* Game
-Button ---* Menu
-Level::Command ---* Level
-FileWrapper ...|> LineStream
-TestInput ...|> InputInterface
-InputInterface::Command ---* InputInterface
-Menu ...> InputInterface
-Level ...> InputInterface
-Game ...> InputInterface
-MenuBuilder ...> LineStream
-MenuBuilder ...> Menu
-LevelBuilder ...> LineStream
-LevelBuilder ...> Level
+EntityHandler o--- AbstractEntity
+BehaviourEnemy o--- DealDamageInteraction
+BehaviourEnemy o--- KnockbackAttack
+BehaviourEnemy o--- PathfindMovement
+BehaviourEnemy o--- PatrolMovement
 @enduml
